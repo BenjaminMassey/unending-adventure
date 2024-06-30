@@ -1,3 +1,11 @@
+mod llm;
+mod log;
+
 fn main() {
-    println!("Hello, world!");
+    log::info(
+        &format!(
+            "{:?}",
+            llm::gpt4all_chat("Write a simple test message and respond with only that.", 200),
+        )
+    );
 }
