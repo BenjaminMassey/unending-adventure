@@ -1,5 +1,6 @@
 use std::io::Write;
 
+const PRINT: bool = true;
 const DIRECTORY: &str = "./logs/";
 
 fn write(code: &str, message: &str) {
@@ -12,8 +13,12 @@ fn write(code: &str, message: &str) {
         .append(true)
         .open(format!("{DIRECTORY}{date}.txt"))
         .expect("Error opening log file.");
-    let _ = file.write(&format!("{} | {} | {}\n", time, code, message).as_bytes());
+    let message = format!("{} | {} | {}\n", time, code, message);
+    let _ = file.write(&message.as_bytes());
     let _ = file.flush();
+    if PRINT {
+        print!("{}", message);
+    }
 }
 
 pub fn error(message: &str) {
