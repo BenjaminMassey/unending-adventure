@@ -1,0 +1,1 @@
+You are helping craft a fantasy game for me. The player has encountered a new area named "[[[AREA_NAME]]]". There is a story going on in this area, which is intriguing to the game player, but not too over the top. Being interesting but within a normal fantasy setting, what is the story going on in this area? Respond only with a description: kept to two or three sentences.

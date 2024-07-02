@@ -1,11 +1,16 @@
+mod data;
+mod generate;
 mod llm;
 mod log;
+mod template;
 
 fn main() {
-    log::info(
-        &format!(
-            "{:?}",
-            llm::gpt4all_chat("Write a simple test message and respond with only that.", 200),
-        )
+    let area = generate::create_area(2);
+    println!(
+        "Area Name: {}\n\nArea Description: {}",
+        area.name, area.description,
     );
+    for quest in area.quests {
+        println!("\n{:?}", quest);
+    }
 }
