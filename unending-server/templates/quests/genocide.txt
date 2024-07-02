@@ -1,0 +1,1 @@
+slay [[[NUMBER]]] of [[[ENEMY]]]s

@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 fn fill(path: &str, key_pairs: &[(&str, &str)]) -> String {
     let mut text = std::fs::read_to_string(path).expect("Error reading template file");
     for (key, value) in key_pairs {
@@ -42,4 +44,46 @@ pub fn quest_description(area_name: &str, area_description: &str, quest_task: &s
             ("GIVER_NAME", giver_name),
         ],
     )
+}
+
+pub fn boss_quest(boss_name: &str) -> String {
+    fill("./templates/quests/boss.txt", &vec![("BOSS", boss_name)])
+}
+
+pub fn fetch_quest(item_count: u8, item_name: &str) -> String {
+    let number = item_count.to_string();
+    fill(
+        "./templates/quests/fetch.txt",
+        &vec![
+            ("NUMBER", number.deref()),
+            ("ITEM", item_name),
+        ],
+    )
+}
+
+pub fn genocide_quest(enemy_count: u8, enemy_name: &str) -> String {
+    let number = enemy_count.to_string();
+    fill(
+        "./templates/quests/genocide.txt",
+        &vec![
+            ("NUMBER", number.deref()),
+            ("ENEMY", enemy_name),
+        ],
+    )
+}
+
+pub fn loot_quest(item_count: u8, item_name: &str, enemy_name: &str) -> String {
+    let number = item_count.to_string();
+    fill(
+        "./templates/quests/loot.txt",
+        &vec![
+            ("NUMBER", number.deref()),
+            ("ITEM", item_name),
+            ("ENEMY", enemy_name),
+        ],
+    )
+}
+
+pub fn talk_quest(npc_name: &str) -> String {
+    fill("./templates/quests/talk.txt", &vec![("NPC", npc_name)])
 }
