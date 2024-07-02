@@ -4,6 +4,7 @@ const ATTEMPT_TIMEOUT: u64 = 30;
 
 use crate::log;
 
+// TODO: make tokens an Option and handle None
 fn openai_body(message: &str, tokens: usize) -> String {
     let sanitized = message.replace('"', "'"); // TODO: more
     format!(

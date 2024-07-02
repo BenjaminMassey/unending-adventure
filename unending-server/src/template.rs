@@ -16,10 +16,65 @@ pub fn area_description(area_name: &str) -> String {
     fill("./templates/prompts/area_desc.txt", &vec![("AREA_NAME", area_name)])
 }
 
-pub fn enemy_name(area_name: &str, area_description: &str) -> String {
+pub fn enemy_name(area_name: &str, area_description: &str, enemy_count: u8) -> String {
+    let number = enemy_count.to_string();
     fill(
         "./templates/prompts/enemy_name.txt",
-        &vec![("AREA_NAME", area_name), ("AREA_DESC", area_description)],
+        &vec![
+            ("AREA_NAME", area_name),
+            ("AREA_DESC", area_description),
+            ("ENEMY_COUNT", number.deref()),
+        ],
+    )
+}
+
+pub fn boss_name(area_name: &str, area_description: &str) -> String {
+    fill(
+        "./templates/prompts/boss_name.txt",
+        &vec![
+            ("AREA_NAME", area_name),
+            ("AREA_DESC", area_description),
+        ],
+    )
+}
+
+pub fn fetch_item(area_name: &str, area_description: &str, item_count: u8) -> String {
+    let number = item_count.to_string();
+    fill(
+        "./templates/prompts/fetch_item.txt",
+        &vec![
+            ("AREA_NAME", area_name),
+            ("AREA_DESC", area_description),
+            ("ITEM_COUNT", number.deref()),
+        ],
+    )
+}
+
+pub fn loot_item(
+    area_name: &str,
+    area_description: &str,
+    item_count: u8,
+    enemy_name: &str,
+) -> String {
+    let number = item_count.to_string();
+    fill(
+        "./templates/prompts/loot_item.txt",
+        &vec![
+            ("AREA_NAME", area_name),
+            ("AREA_DESC", area_description),
+            ("ITEM_COUNT", number.deref()),
+            ("ENEMY_NAME", enemy_name),
+        ],
+    )
+}
+
+pub fn npc_name(area_name: &str, area_description: &str) -> String {
+    fill(
+        "./templates/prompts/npc_name.txt",
+        &vec![
+            ("AREA_NAME", area_name),
+            ("AREA_DESC", area_description),
+        ],
     )
 }
 

@@ -29,7 +29,6 @@ fn create_quest(area_name: &str, area_desc: &str) -> data::Quest {
     let quest_type = data::QuestType::iter()
         .choose(&mut rand::thread_rng())
         .unwrap();
-    let quest_type = data::QuestType::Genocide; // TODO: support others so can remove this
     let mut quest = quest_base(quest_type, area_name, area_desc);
     let task = create_task(&quest);
     let quest_giver = llm::gpt4all_chat(
@@ -49,23 +48,46 @@ fn create_quest(area_name: &str, area_desc: &str) -> data::Quest {
 fn quest_base(quest_type: data::QuestType, area_name: &str, area_desc: &str) -> data::Quest {
     match quest_type {
         data::QuestType::Boss => {
-            data::Quest::new_boss("", "", "") // TODO
-        },
-        data::QuestType::Fetch => {
-            data::Quest::new_fetch("", "", 0, "") // TODO
-        },
-        data::QuestType::Genocide => {
-            let enemy_name = llm::gpt4all_chat(
-                &template::enemy_name(area_name, area_desc),
+            let boss_name = llm::gpt4all_chat(
+                &template::boss_name(area_name, area_desc),
                 10,
             ).unwrap();
-            data::Quest::new_genocide("", "", 10, &enemy_name) // TODO: rand num
+            data::Quest::new_boss("", "", &boss_name)
+        },
+        data::QuestType::Fetch => {
+            let number: u8 = 10; // TODO: rand num
+            let item_name = llm::gpt4all_chat(
+                &template::fetch_item(area_name, area_desc, number),
+                10,
+            ).unwrap();
+            data::Quest::new_fetch("", "", number, &item_name)
+        },
+        data::QuestType::Genocide => {
+            let number: u8 = 10; // TODO: rand num
+            let enemy_name = llm::gpt4all_chat(
+                &template::enemy_name(area_name, area_desc, number),
+                10,
+            ).unwrap();
+            data::Quest::new_genocide("", "", number, &enemy_name)
         },
         data::QuestType::Loot => {
-            data::Quest::new_loot("", "", 0, "", "") // TODO
+            let number: u8 = 10; // TODO: rand num
+            let enemy_name = llm::gpt4all_chat(
+                &template::enemy_name(area_name, area_desc, number),
+                10,
+            ).unwrap();
+            let item_name = llm::gpt4all_chat(
+                &template::loot_item(area_name, area_desc, number, &enemy_name),
+                10,
+            ).unwrap();
+            data::Quest::new_loot("", "", 0, &item_name, &enemy_name)
         }
         data::QuestType::Talk => {
-            data::Quest::new_talk("", "", "") // TODO
+            let npc_name = llm::gpt4all_chat(
+                &template::npc_name(area_name, area_desc),
+                10,
+            ).unwrap();
+            data::Quest::new_talk("", "", &npc_name)
         }
     }
 }
