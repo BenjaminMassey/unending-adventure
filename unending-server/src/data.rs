@@ -26,11 +26,36 @@ pub struct Quest {
 }
 impl std::fmt::Debug for Quest {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let specifics = match self.the_type {
+            QuestType::Genocide => {
+                format!(
+                    "\n\tNumber: {}\n\tEnemy: {}",
+                    self.number.as_ref().unwrap(), self.enemy.as_ref().unwrap(),
+                )
+            },
+            QuestType::Loot => {
+                format!(
+                    "\n\tNumber: {}\n\tItem: {}\n\tEnemy: {}",
+                    self.number.as_ref().unwrap(), self.item.as_ref().unwrap(), self.enemy.as_ref().unwrap(),
+                )
+            },
+            QuestType::Boss => {
+                format!("\n\tBoss: {}", self.boss.as_ref().unwrap())
+            },
+            QuestType::Fetch => {
+                format!(
+                    "\n\tNumber: {}\n\tItem: {}",
+                    self.number.as_ref().unwrap(), self.item.as_ref().unwrap())
+            },
+            QuestType::Talk => {
+                format!("\n\tNPC: {}", self.npc.as_ref().unwrap())
+            },
+        };
         write!(
             f,
-            "Quest {{\n\tType: {:?}\n\tGiver: {}\n\tDescription: {}\n}}",
-            self.the_type, self.giver, self.description,
-        ) // TODO: match for what option(s) to print
+            "Quest {{\n\tGiver: {}\n\tDescription: {}\n\tType: {:?}{specifics}\n}}",
+            self.giver, self.description, self.the_type,
+        )
     }
 }
 impl Quest {

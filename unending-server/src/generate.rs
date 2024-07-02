@@ -80,7 +80,7 @@ fn quest_base(quest_type: data::QuestType, area_name: &str, area_desc: &str) -> 
                 &template::loot_item(area_name, area_desc, number, &enemy_name),
                 10,
             ).unwrap();
-            data::Quest::new_loot("", "", 0, &item_name, &enemy_name)
+            data::Quest::new_loot("", "", number, &item_name, &enemy_name)
         }
         data::QuestType::Talk => {
             let npc_name = llm::gpt4all_chat(
