@@ -2,7 +2,7 @@ pub struct Area {
     pub id: uuid::Uuid,
     pub name: String,
     pub description: String,
-    pub quests: Vec<Quest>,
+    pub quests: Vec<Quest>, // TODO: does this really want to be embedded, or just trackable via uuid?
 }
 impl std::fmt::Debug for Area {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
