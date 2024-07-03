@@ -1,3 +1,6 @@
+
+use std::str::FromStr;
+
 pub struct Area {
     pub id: uuid::Uuid,
     pub name: String,
@@ -156,6 +159,79 @@ impl Quest {
             item: None,
             boss: None,
             npc: Some(npc.to_owned()),
+        }
+    }
+}
+
+#[derive(serde::Deserialize)]
+pub struct UuidRequest {
+    pub uuid: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct StringArea { // Used for json and sqlite
+    pub uuid: String,
+    pub name: String,
+    pub description: String,
+}
+impl StringArea {
+    pub fn from_area(area: &Area) -> Self {
+        Self {
+            uuid: area.id.hyphenated().to_string(),
+            name: area.name.to_owned(),
+            description: area.description.to_owned(),
+        }
+    }
+    pub fn to_area(self) -> Area {
+        Area {
+            id: uuid::Uuid::from_str(&self.uuid).unwrap(),
+            name: self.name,
+            description: self.description,
+            quests: vec![], // TODO: shouldn't exist, or call some get_quest fn
+        }
+    }
+}
+
+#[derive(serde::Serialize)]
+pub struct StringQuest { // Used for json and sqlite
+    pub uuid: String,
+    pub area_id: String,
+    pub the_type: String,
+    pub giver: String,
+    pub description: String,
+    pub number: String,
+    pub enemy: String,
+    pub item: String,
+    pub boss: String,
+    pub npc: String,
+}
+impl StringQuest {
+    pub fn from_quest(quest: &Quest) -> Self {
+        Self {
+            uuid: quest.id.hyphenated().to_string(),
+            area_id: {if let Some(id) = quest.area_id { id.hyphenated().to_string() } else { String::new() }},
+            the_type: format!("{:?}", quest.the_type),
+            giver: quest.giver.to_owned(),
+            description: quest.description.to_owned(),
+            number: {if let Some(number) = quest.number { number.to_string() } else { String::new() }},
+            enemy: quest.enemy.to_owned().unwrap_or(String::new()),
+            item: quest.item.to_owned().unwrap_or(String::new()),
+            boss: quest.boss.to_owned().unwrap_or(String::new()),
+            npc: quest.npc.to_owned().unwrap_or(String::new()),
+        }
+    } 
+    pub fn to_quest(self) -> Quest {
+        Quest {
+            id: uuid::Uuid::from_str(&self.uuid).unwrap(),
+            area_id: if self.area_id.is_empty() { None } else { Some(uuid::Uuid::from_str(&self.area_id).unwrap()) },
+            the_type: QuestType::from_str(&self.the_type).unwrap(),
+            giver: self.giver,
+            description: self.description,
+            number: if self.number.is_empty() { None } else { Some(self.number.parse::<u8>().unwrap()) },
+            enemy: if self.enemy.is_empty() { None } else { Some(self.enemy) },
+            item: if self.item.is_empty() { None } else { Some(self.item) },
+            boss: if self.boss.is_empty() { None } else { Some(self.boss) },
+            npc: if self.npc.is_empty() { None } else { Some(self.npc) },
         }
     }
 }

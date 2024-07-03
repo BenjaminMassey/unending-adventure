@@ -6,19 +6,23 @@ mod log;
 mod server;
 mod template;
 
+const GENERATE: bool = false;
+
 #[tokio::main]
 async fn main() {
     // Generate content
-    std::thread::spawn(|| {
-        db::initialize();
-        loop {
-            let area = generate::create_area(1);
-            db::add_area(&area);
-            for quest in &area.quests {
-                db::add_quest(quest);
+    if GENERATE {
+        std::thread::spawn(|| {
+            db::initialize();
+            loop {
+                let area = generate::create_area(1);
+                db::add_area(&area);
+                for quest in &area.quests {
+                    db::add_quest(quest);
+                }
             }
-        }
-    });
+        });
+    }
 
     // Host API
     let app = axum::Router::new()
