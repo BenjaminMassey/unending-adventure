@@ -5,7 +5,7 @@ use crate::template;
 use rand::seq::IteratorRandom;
 use strum::IntoEnumIterator;
 
-pub fn create_area(quest_count: usize) -> data::Area {
+pub fn create_area_with_quests(quest_count: usize) -> data::Area {
     let area_name = llm::gpt4all_chat(
         &template::area_name(),
         20,

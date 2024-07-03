@@ -8,7 +8,8 @@ pub fn initialize() {
         "CREATE TABLE IF NOT EXISTS areas (
              uuid TEXT PRIMARY KEY,
              name TEXT,
-             description TEXT)",
+             description TEXT,
+             quest_uuids TEXT)",
         [],
     ).unwrap();
     conn.execute(
@@ -32,8 +33,13 @@ pub fn add_area(area: &data::Area) {
     let mut conn = rusqlite::Connection::open(DB_FILE).unwrap();
     let tx = conn.transaction().unwrap();
     tx.execute(
-        "INSERT INTO areas (uuid, name, description) VALUES (?1, ?2, ?3)",
-        [&string_area.uuid, &string_area.name, &string_area.description],
+        "INSERT INTO areas (uuid, name, description, quest_uuids) VALUES (?1, ?2, ?3, ?4)",
+        [
+            &string_area.uuid,
+            &string_area.name,
+            &string_area.description,
+            &string_area.to_comma_separated_quest_ids(),
+        ],
     ).unwrap();
     tx.commit().unwrap();
 }
@@ -45,10 +51,12 @@ pub fn get_area(uuid: uuid::Uuid) -> data::Area {
         .unwrap();
     let mut rows = stmt.query([&uuid.hyphenated().to_string()]).unwrap();
     let row = rows.next().unwrap().unwrap(); // TODO: better dynamicness
+    let quest_ids_string: String = row.get(3).unwrap();
     let string_area = data::StringArea {
         uuid: row.get(0).unwrap(),
         name: row.get(1).unwrap(),
         description: row.get(2).unwrap(),
+        quest_ids: data::StringArea::from_comma_separated_quest_ids(&quest_ids_string),
     };
     string_area.to_area()
 }

@@ -5,31 +5,33 @@ pub struct Area {
     pub id: uuid::Uuid,
     pub name: String,
     pub description: String,
-    pub quests: Vec<Quest>, // TODO: does this really want to be embedded, or just trackable via uuid?
+    pub quest_ids: Vec<uuid::Uuid>, // TODO: does this really want to be embedded, or just trackable via uuid?
 }
 impl std::fmt::Debug for Area {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut quest_ids_string = String::new();
+        for id in self.quest_ids {
+            quest_ids_string += &format!("\n\tQuest: {id}");
+        }
         write!(
             f,
-            "Area {{\n\tUUID: {}\n\tName: {}\n\tDescription: {}\n\tQuest Count: {}\n}}",
-            self.id, self.name, self.description, self.quests.len(),
+            "Area {{\n\tUUID: {}\n\tName: {}\n\tDescription: {}{}\n}}",
+            self.id, self.name, self.description, quest_ids_string,
         )
     }
 }
 impl Area {
     pub fn new(name: &str, description: &str, quests: &[Quest]) -> Self {
         let area_id = uuid::Uuid::new_v4();
-        let mut quests_with_area_ids: Vec<Quest> = vec![];
-        for quest in quests {
-            let mut quest_with_area_id = quest.clone();
-            quest_with_area_id.area_id = Some(area_id);
-            quests_with_area_ids.push(quest_with_area_id);
-        } // TODO: this is awful, and I tried to do it better, but failed, try again later
+        let quest_ids: Vec<uuid::Uuid> = quests
+            .iter()
+            .map(|q| q.id)
+            .collect();
         Area {
             id: area_id,
             name: name.to_owned(),
             description: description.to_owned(),
-            quests: quests_with_area_ids,
+            quest_ids,
         }
     }
 }
@@ -173,6 +175,7 @@ pub struct StringArea { // Used for json and sqlite
     pub uuid: String,
     pub name: String,
     pub description: String,
+    pub quest_ids: Vec<String>,
 }
 impl StringArea {
     pub fn from_area(area: &Area) -> Self {
@@ -180,6 +183,10 @@ impl StringArea {
             uuid: area.id.hyphenated().to_string(),
             name: area.name.to_owned(),
             description: area.description.to_owned(),
+            quest_ids: area.quest_ids
+                .iter()
+                .map(|id| id.hyphenated().to_string())
+                .collect(),
         }
     }
     pub fn to_area(self) -> Area {
@@ -187,8 +194,20 @@ impl StringArea {
             id: uuid::Uuid::from_str(&self.uuid).unwrap(),
             name: self.name,
             description: self.description,
-            quests: vec![], // TODO: shouldn't exist, or call some get_quest fn
+            quest_ids: self.quest_ids
+                .iter()
+                .map(|id| uuid::Uuid::from_str(&id).unwrap())
+                .collect(),
         }
+    }
+    pub fn to_comma_separated_quest_ids(self) -> String {
+        self.quest_ids.join(",")
+    }
+    pub fn from_comma_separated_quest_ids(ids: &str) -> Vec<String> {
+        ids
+            .split(",")
+            .map(|s| s.to_owned())
+            .collect()
     }
 }
 
