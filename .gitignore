@@ -1,3 +1,4 @@
 /unending-client/target
 /unending-server/target
 /unending-server/logs/*
+/unending-server/data.db
