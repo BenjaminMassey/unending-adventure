@@ -8,6 +8,19 @@ mod template;
 
 #[tokio::main]
 async fn main() {
+    // Generate content
+    std::thread::spawn(|| {
+        db::initialize();
+        loop {
+            let area = generate::create_area(1);
+            db::add_area(&area);
+            for quest in &area.quests {
+                db::add_quest(quest);
+            }
+        }
+    });
+
+    // Host API
     let app = axum::Router::new()
         .route("/get_area_by_uuid", axum::routing::post(server::get_area_by_uuid))
         .route("/get_quest_by_uuid", axum::routing::post(server::get_quest_by_uuid));
