@@ -41,7 +41,7 @@ pub fn add_area(area: &data::Area) {
 }
 
 pub fn get_area(uuid: uuid::Uuid) -> data::Area {
-    let mut conn = rusqlite::Connection::open(DB_FILE).unwrap();
+    let conn = rusqlite::Connection::open(DB_FILE).unwrap();
     let mut stmt = conn
         .prepare("SELECT * FROM areas WHERE uuid = ?1")
         .unwrap();
@@ -85,7 +85,7 @@ pub fn add_quest(quest: &data::Quest) {
 }
 
 pub fn get_quest(uuid: uuid::Uuid) -> data::Quest {
-    let mut conn = rusqlite::Connection::open(DB_FILE).unwrap();
+    let conn = rusqlite::Connection::open(DB_FILE).unwrap();
     let mut stmt = conn
         .prepare("SELECT * FROM quests WHERE uuid = ?1")
         .unwrap();
@@ -93,7 +93,8 @@ pub fn get_quest(uuid: uuid::Uuid) -> data::Quest {
     let row = rows.next().unwrap().unwrap(); // TODO: better dynamicness
     let area_id_string: String = row.get(1).unwrap();
     let area_id = if area_id_string.is_empty() { None } else { Some(uuid::Uuid::from_str(&area_id_string).unwrap()) };
-    let the_type: String = row.get(2).unwrap();
+    let the_type_string: String = row.get(2).unwrap();
+    let the_type = data::QuestType::from_str(&the_type_string).unwrap();
     let giver: String = row.get(3).unwrap();
     let description: String = row.get(4).unwrap();
     let number_string: String = row.get(5).unwrap();
@@ -109,7 +110,7 @@ pub fn get_quest(uuid: uuid::Uuid) -> data::Quest {
     data::Quest {
         id: uuid,
         area_id,
-        the_type, // TODO: string -> data::QuestType function
+        the_type,
         giver,
         description,
         number,
