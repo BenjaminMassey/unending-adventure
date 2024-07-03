@@ -6,11 +6,8 @@ mod template;
 
 fn main() {
     let area = generate::create_area(2);
-    println!(
-        "Area Name: {}\n\nArea Description: {}",
-        area.name, area.description,
-    );
+    println!("{area:?}");
     for quest in area.quests {
-        println!("\n{:?}", quest);
+        println!("\n{quest:?}");
     }
 }

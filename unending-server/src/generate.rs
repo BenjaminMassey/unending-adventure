@@ -18,11 +18,7 @@ pub fn create_area(quest_count: usize) -> data::Area {
     for _ in 0..quest_count {
         quests.push(create_quest(&area_name, &area_desc));
     }
-    data::Area{
-        name: area_name,
-        description: area_desc,
-        quests,
-    }
+    data::Area::new(&area_name, &area_desc, &quests)
 }
 
 fn create_quest(area_name: &str, area_desc: &str) -> data::Quest {
