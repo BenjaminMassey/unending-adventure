@@ -29,6 +29,7 @@ pub fn warning(message: &str) {
     write("[WARNING]", message);
 }
 
+// TODO: use
 pub fn info(message: &str) {
     write("[INFO]   ", message);
 }

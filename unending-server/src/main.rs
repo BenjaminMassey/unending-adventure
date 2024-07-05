@@ -6,7 +6,7 @@ mod log;
 mod server;
 mod template;
 
-const GENERATE: bool = false;
+const GENERATE: bool = true;
 
 #[tokio::main]
 async fn main() {

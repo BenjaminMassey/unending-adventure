@@ -22,33 +22,32 @@ pub fn create_area_with_quests(
 }
 
 fn create_area() -> data::Area {
-    let area_name = llm::gpt4all_chat(
+    let area_name = llm::gpt4all_chat_force(
         &template::area_name(),
         20,
-    ).unwrap();
-    let area_desc = llm::gpt4all_chat(
+    );
+    let area_desc = llm::gpt4all_chat_force(
         &template::area_description(&area_name),
         200,
-    ).unwrap();
+    );
     data::Area::new(&area_name, &area_desc, &Vec::new())
 }
 
 fn create_quest(area: &data::Area) -> data::Quest {
     let quest_type = data::QuestType::iter()
         .choose(&mut rand::thread_rng())
-        .unwrap();
+        .unwrap_or(data::QuestType::Genocide);
     let mut quest = quest_base(quest_type, &area.name, &area.description);
     let task = create_task(&quest);
     let giver_prompt = template::quest_giver(&area.name, &area.description, &task);
-    println!("GIVER PROMPT: \"{}\"", &giver_prompt);
-    let quest_giver = llm::gpt4all_chat(
+    let quest_giver = llm::gpt4all_chat_force(
         &giver_prompt,
         10,
-    ).unwrap();
-    let quest_desc = llm::gpt4all_chat(
+    );
+    let quest_desc = llm::gpt4all_chat_force(
         &template::quest_description(&area.name, &area.description, &task, &quest_giver),
         300,
-    ).unwrap();
+    );
     quest.giver = quest_giver;
     quest.description = quest_desc;
     quest.area_id = Some(area.id);
@@ -62,45 +61,45 @@ fn quest_base(
 ) -> data::Quest {
     match quest_type {
         data::QuestType::Boss => {
-            let boss_name = llm::gpt4all_chat(
+            let boss_name = llm::gpt4all_chat_force(
                 &template::boss_name(area_name, area_desc),
                 10,
-            ).unwrap();
+            );
             data::Quest::new_boss("", "", &boss_name)
         },
         data::QuestType::Fetch => {
             let number: u8 = 10; // TODO: rand num
-            let item_name = llm::gpt4all_chat(
+            let item_name = llm::gpt4all_chat_force(
                 &template::fetch_item(area_name, area_desc, number),
                 10,
-            ).unwrap();
+            );
             data::Quest::new_fetch("", "", number, &item_name)
         },
         data::QuestType::Genocide => {
             let number: u8 = 10; // TODO: rand num
-            let enemy_name = llm::gpt4all_chat(
+            let enemy_name = llm::gpt4all_chat_force(
                 &template::enemy_name(area_name, area_desc, number),
                 10,
-            ).unwrap();
+            );
             data::Quest::new_genocide("", "", number, &enemy_name)
         },
         data::QuestType::Loot => {
             let number: u8 = 10; // TODO: rand num
-            let enemy_name = llm::gpt4all_chat(
+            let enemy_name = llm::gpt4all_chat_force(
                 &template::enemy_name(area_name, area_desc, number),
                 10,
-            ).unwrap();
-            let item_name = llm::gpt4all_chat(
+            );
+            let item_name = llm::gpt4all_chat_force(
                 &template::loot_item(area_name, area_desc, number, &enemy_name),
                 10,
-            ).unwrap();
+            );
             data::Quest::new_loot("", "", number, &item_name, &enemy_name)
         }
         data::QuestType::Talk => {
-            let npc_name = llm::gpt4all_chat(
+            let npc_name = llm::gpt4all_chat_force(
                 &template::npc_name(area_name, area_desc),
                 10,
-            ).unwrap();
+            );
             data::Quest::new_talk("", "", &npc_name)
         }
     }
