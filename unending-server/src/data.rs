@@ -149,7 +149,7 @@ impl Quest {
         Quest {
             id: uuid::Uuid::new_v4(),
             area_id: None,
-            the_type: QuestType::Genocide,
+            the_type: QuestType::Talk,
             giver: giver.to_owned(),
             description: description.to_owned(),
             number: None,
