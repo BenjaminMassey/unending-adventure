@@ -6,7 +6,7 @@ mod log;
 mod server;
 mod template;
 
-const GENERATE: bool = true;
+const GENERATE: bool = false;
 
 #[tokio::main]
 async fn main() {
@@ -27,6 +27,7 @@ async fn main() {
     // Host API
     let app = axum::Router::new()
         .route("/get_area_by_uuid", axum::routing::post(server::get_area_by_uuid))
+        .route("/get_random_area", axum::routing::get(server::get_random_area))
         .route("/get_quest_by_uuid", axum::routing::post(server::get_quest_by_uuid));
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3001").await.unwrap();
     axum::serve(listener, app).await.unwrap();

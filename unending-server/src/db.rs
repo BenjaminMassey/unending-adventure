@@ -44,12 +44,30 @@ pub fn add_area(area: &data::Area) {
     tx.commit().unwrap();
 }
 
-pub fn get_area(uuid: uuid::Uuid) -> data::Area {
+pub fn get_area_by_uuid(uuid: uuid::Uuid) -> data::Area {
     let conn = rusqlite::Connection::open(DB_FILE).unwrap();
     let mut stmt = conn
         .prepare("SELECT * FROM areas WHERE uuid = ?1")
         .unwrap();
     let mut rows = stmt.query([&uuid.hyphenated().to_string()]).unwrap();
+    let row = rows.next().unwrap().unwrap(); // TODO: better dynamicness
+    let quest_ids_string: String = row.get(3).unwrap();
+    let string_area = data::StringArea {
+        uuid: row.get(0).unwrap(),
+        name: row.get(1).unwrap(),
+        description: row.get(2).unwrap(),
+        quest_ids: data::StringArea::from_comma_separated_quest_ids(&quest_ids_string),
+    };
+    string_area.to_area()
+}
+
+pub fn get_random_area() -> data::Area {
+    let conn = rusqlite::Connection::open(DB_FILE).unwrap();
+    let mut stmt = conn
+        .prepare("SELECT * FROM areas WHERE rowid IN (SELECT rowid FROM areas ORDER BY RANDOM() LIMIT 1)")
+        .unwrap();
+    // https://stackoverflow.com/a/24591688
+    let mut rows = stmt.query([]).unwrap();
     let row = rows.next().unwrap().unwrap(); // TODO: better dynamicness
     let quest_ids_string: String = row.get(3).unwrap();
     let string_area = data::StringArea {
@@ -83,7 +101,7 @@ pub fn add_quest(quest: &data::Quest) {
     tx.commit().unwrap();
 }
 
-pub fn get_quest(uuid: uuid::Uuid) -> data::Quest {
+pub fn get_quest_by_uuid(uuid: uuid::Uuid) -> data::Quest {
     let conn = rusqlite::Connection::open(DB_FILE).unwrap();
     let mut stmt = conn
         .prepare("SELECT * FROM quests WHERE uuid = ?1")
