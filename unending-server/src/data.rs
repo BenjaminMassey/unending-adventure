@@ -166,7 +166,7 @@ pub struct UuidRequest {
     pub uuid: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct StringArea { // Used for json and sqlite
     pub uuid: String,
     pub name: String,
@@ -207,7 +207,7 @@ impl StringArea {
     }
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct StringQuest { // Used for json and sqlite
     pub uuid: String,
     pub area_id: String,
