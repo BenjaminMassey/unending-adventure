@@ -32,7 +32,7 @@ impl Area {
     }
 }
 
-#[derive(Copy, Clone, Debug, strum_macros::EnumCount, strum_macros::EnumIter, strum_macros::EnumString)]
+#[derive(Copy, Clone, Debug, PartialEq, strum_macros::EnumCount, strum_macros::EnumIter, strum_macros::EnumString)]
 pub enum QuestType {
     Genocide, // slay X number of ENEMYs
     Loot, // retrieve X number of ITEMs from ENEMYs

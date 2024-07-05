@@ -1,5 +1,6 @@
 mod connection;
 mod draw;
+mod game;
 
 use macroquad::prelude::*;
 
@@ -16,7 +17,8 @@ fn conf() -> Conf {
 #[macroquad::main(conf)]
 async fn main() {
     let content = connection::get_random_content();
-    let area_name = content.area.name;
+    let mut state = game::State::Normal;
+    let mut state_data = game::StateData{ quest: None };
 
     loop {
         clear_background(LIGHTGRAY);
@@ -32,8 +34,28 @@ async fn main() {
 
         draw::quest_giver(BLUE);
 
+        // TODO: need some kind of ray-tracing to be able to go from
+        //  a mouse_position() check to which person is aimed at, plus
+        //  some kind of connection between person and quest index
+        if is_mouse_button_pressed(MouseButton::Right) {
+            if state == game::State::Normal {
+                state = game::State::Dialogue;
+                state_data.quest = Some(content.quests[0].clone());
+            } else {
+                state = game::State::Normal;
+                state_data.quest = None;
+            }
+        }
+
         set_default_camera();
-        draw_text(&area_name, 10.0, 20.0, 30.0, BLACK);
+        draw_text(&content.area.name, 10.0, 20.0, 30.0, BLACK);
+        if state == game::State::Dialogue {
+            if let Some(quest) = &state_data.quest {
+                draw_text(&quest.giver, 10.0, 45.0, 30.0, BLACK);
+                draw_text(&quest.description, 10.0, 65.0, 30.0, BLACK);
+                // TODO: need system to wrap text in some reasonable way
+            }
+        }
 
         next_frame().await
     }
