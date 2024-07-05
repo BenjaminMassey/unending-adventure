@@ -15,9 +15,9 @@ async fn main() {
         std::thread::spawn(|| {
             db::initialize();
             loop {
-                let area = generate::create_area(1);
+                let (area, quests) = generate::create_area_with_quests(2);
                 db::add_area(&area);
-                for quest in &area.quests {
+                for quest in &quests {
                     db::add_quest(quest);
                 }
             }

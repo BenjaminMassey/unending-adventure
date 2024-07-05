@@ -5,12 +5,12 @@ pub struct Area {
     pub id: uuid::Uuid,
     pub name: String,
     pub description: String,
-    pub quest_ids: Vec<uuid::Uuid>, // TODO: does this really want to be embedded, or just trackable via uuid?
+    pub quest_ids: Vec<uuid::Uuid>,
 }
 impl std::fmt::Debug for Area {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut quest_ids_string = String::new();
-        for id in self.quest_ids {
+        for id in &self.quest_ids {
             quest_ids_string += &format!("\n\tQuest: {id}");
         }
         write!(
@@ -21,17 +21,13 @@ impl std::fmt::Debug for Area {
     }
 }
 impl Area {
-    pub fn new(name: &str, description: &str, quests: &[Quest]) -> Self {
+    pub fn new(name: &str, description: &str, quest_ids: &[uuid::Uuid]) -> Self {
         let area_id = uuid::Uuid::new_v4();
-        let quest_ids: Vec<uuid::Uuid> = quests
-            .iter()
-            .map(|q| q.id)
-            .collect();
         Area {
             id: area_id,
             name: name.to_owned(),
             description: description.to_owned(),
-            quest_ids,
+            quest_ids: quest_ids.to_owned(),
         }
     }
 }
@@ -46,7 +42,7 @@ pub enum QuestType {
 }
 
 #[derive(Clone)]
-pub struct Quest {
+pub struct Quest { // TODO: I'd like the "task" in here and in DB
     pub id: uuid::Uuid,
     pub area_id: Option<uuid::Uuid>,
     pub the_type: QuestType,
@@ -200,7 +196,7 @@ impl StringArea {
                 .collect(),
         }
     }
-    pub fn to_comma_separated_quest_ids(self) -> String {
+    pub fn to_comma_separated_quest_ids(&self) -> String {
         self.quest_ids.join(",")
     }
     pub fn from_comma_separated_quest_ids(ids: &str) -> Vec<String> {

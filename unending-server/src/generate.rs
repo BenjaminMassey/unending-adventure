@@ -5,7 +5,23 @@ use crate::template;
 use rand::seq::IteratorRandom;
 use strum::IntoEnumIterator;
 
-pub fn create_area_with_quests(quest_count: usize) -> data::Area {
+pub fn create_area_with_quests(
+    quest_count: usize
+) -> (data::Area, Vec<data::Quest>) {
+    let mut area = create_area();
+    let mut quests: Vec<data::Quest> = vec![];
+    for _ in 0..quest_count {
+        quests.push(create_quest(&area));
+    }
+    let quest_ids: Vec<uuid::Uuid> = quests
+        .iter()
+        .map(|q| q.id)
+        .collect();
+    area.quest_ids = quest_ids;
+    (area, quests)
+}
+
+fn create_area() -> data::Area {
     let area_name = llm::gpt4all_chat(
         &template::area_name(),
         20,
@@ -14,34 +30,36 @@ pub fn create_area_with_quests(quest_count: usize) -> data::Area {
         &template::area_description(&area_name),
         200,
     ).unwrap();
-    let mut quests: Vec<data::Quest> = vec![];
-    for _ in 0..quest_count {
-        quests.push(create_quest(&area_name, &area_desc));
-    }
-    data::Area::new(&area_name, &area_desc, &quests)
+    data::Area::new(&area_name, &area_desc, &Vec::new())
 }
 
-fn create_quest(area_name: &str, area_desc: &str) -> data::Quest {
+fn create_quest(area: &data::Area) -> data::Quest {
     let quest_type = data::QuestType::iter()
         .choose(&mut rand::thread_rng())
         .unwrap();
-    let mut quest = quest_base(quest_type, area_name, area_desc);
+    let mut quest = quest_base(quest_type, &area.name, &area.description);
     let task = create_task(&quest);
+    let giver_prompt = template::quest_giver(&area.name, &area.description, &task);
+    println!("GIVER PROMPT: \"{}\"", &giver_prompt);
     let quest_giver = llm::gpt4all_chat(
-        &template::quest_giver(area_name, area_desc, &task),
+        &giver_prompt,
         10,
     ).unwrap();
     let quest_desc = llm::gpt4all_chat(
-        &template::quest_description(area_name, area_desc, &task, &quest_giver),
+        &template::quest_description(&area.name, &area.description, &task, &quest_giver),
         300,
     ).unwrap();
     quest.giver = quest_giver;
     quest.description = quest_desc;
-
+    quest.area_id = Some(area.id);
     quest
 }
 
-fn quest_base(quest_type: data::QuestType, area_name: &str, area_desc: &str) -> data::Quest {
+fn quest_base(
+    quest_type: data::QuestType,
+    area_name: &str,
+    area_desc: &str,
+) -> data::Quest {
     match quest_type {
         data::QuestType::Boss => {
             let boss_name = llm::gpt4all_chat(

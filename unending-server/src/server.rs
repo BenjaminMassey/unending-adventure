@@ -3,6 +3,8 @@ use crate::db;
 
 use std::str::FromStr;
 
+// TODO: more calls and better general usability
+
 pub async fn get_area_by_uuid(
     axum::Json(payload): axum::Json<data::UuidRequest>,
 ) -> impl axum::response::IntoResponse {

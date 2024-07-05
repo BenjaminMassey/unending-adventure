@@ -27,6 +27,7 @@ fn openai_body(message: &str, tokens: usize) -> String {
     )
 }
 
+// TODO: some way of handling these for when they fail
 pub fn gpt4all_chat(message: &str, tokens: usize) -> Option<String> {
     let url = "http://".to_owned() + &GPT4ALL_URL + "/v1/chat/completions";
     let client = reqwest::blocking::Client::new();
