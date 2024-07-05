@@ -1,5 +1,9 @@
 mod connection;
 
 fn main() {
-    println!("{:?}", connection::get_random_area());
+    let content = connection::get_random_content();
+    println!("{:?}", content.area);
+    for quest in content.quests {
+        println!("{:?}", quest);
+    }
 }
