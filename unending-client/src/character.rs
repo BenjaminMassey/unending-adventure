@@ -1,11 +1,15 @@
+use crate::events;
+
 use bevy::prelude::*;
+use bevy_mod_picking::prelude::*;
 
 #[derive(Component)]
 struct QuestGiver {
     name: String,
     dialogue: String,
 }
-
+// TODO: use above struct to attach to character created with below function
+// and tie to clicking them with events::Popup
 pub fn create_quest_giver(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -44,18 +48,27 @@ fn create_character(
     }
 }
 
+fn test_click(text: &str) {
+    info!("{}", text);
+}
+
 fn create_question_mark(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
     base_position: &Vec3,
 ) {
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Sphere::new(0.075)),
-        material: materials.add(Color::srgb_u8(255, 255, 0)),
-        transform: Transform::from_xyz(base_position.x, base_position.y, base_position.z),
-        ..default()
-    });
+    commands.spawn(
+        (
+            PbrBundle {
+                mesh: meshes.add(Sphere::new(0.075)),
+                material: materials.add(Color::srgb_u8(255, 255, 0)),
+                transform: Transform::from_xyz(base_position.x, base_position.y, base_position.z),
+                ..default()
+            },
+            On::<Pointer<Click>>::send_event::<events::Popup>(),
+        )
+    );
     let cube_positions: Vec<(f32, f32, f32)> = vec![
         (0., 0.25, 0.), (0., 0.375, 0.), (0.125, 0.5, 0.),
         (0.25, 0.625, 0.), (0.25, 0.75, 0.), (0.125, 0.875, 0.),

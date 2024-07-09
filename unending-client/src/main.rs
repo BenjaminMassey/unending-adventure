@@ -1,14 +1,19 @@
 mod character;
 mod connection;
+mod events;
 mod ui;
 mod world;
 
 use bevy::prelude::*;
+use bevy_mod_picking::prelude::*;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPickingPlugins)
+        .add_event::<events::Popup>()
         .add_systems(Startup, setup)
+        .add_systems(Update, events::handle_popup)
         .run();
 }
 
