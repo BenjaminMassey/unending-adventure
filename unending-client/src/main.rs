@@ -1,6 +1,7 @@
 mod character;
 mod connection;
 mod events;
+mod input;
 mod ui;
 mod world;
 
@@ -12,8 +13,16 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(DefaultPickingPlugins)
         .add_event::<events::Popup>()
+        .add_event::<events::ClearText>()
         .add_systems(Startup, setup)
-        .add_systems(Update, events::handle_popup)
+        .add_systems(
+            Update, 
+            (
+                input::keyboard_events,
+                events::handle_clear_text,
+                events::handle_popup
+            )
+        )
         .run();
 }
 
