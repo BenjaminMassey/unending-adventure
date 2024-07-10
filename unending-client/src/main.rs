@@ -26,7 +26,18 @@ fn setup(
     let content = connection::get_random_content();
     ui::top_left_text(&mut commands, &content.area.name);
     world::create_circular_base(&mut commands, &mut meshes, &mut materials);
-    character::create_quest_giver(&mut commands, &mut meshes, &mut materials, &Vec3::new(0.0, 0.0, 0.0));
+    for (i, quest) in content.quests.iter().enumerate() {
+        character::create_quest_giver(
+            &mut commands,
+            &mut meshes,
+            &mut materials,
+            &Vec3::new(-1.5 + ((i as f32) * 3.0), 0.0, 0.0),
+            &character::CharacterDetails::new(
+                &quest.giver,
+                &quest.description,
+            ),
+        );
+    }
     world::create_main_light(&mut commands, &mut meshes, &mut materials, &Vec3::new(4.0, 8.0, 4.0));
     world::create_main_camera(&mut commands, &mut meshes, &mut materials, &Vec3::new(-2.5, 4.5, 9.0));
 }
