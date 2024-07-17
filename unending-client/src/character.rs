@@ -19,8 +19,7 @@ impl CharacterDetails {
         }
     }
 }
-// TODO: use above struct to attach to character created with below function
-// and tie to clicking them with events::Popup
+
 pub fn create_quest_giver(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
