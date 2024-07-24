@@ -6,6 +6,9 @@ mod log;
 mod server;
 mod template;
 
+#[cfg(feature = "generate")]
+const GENERATE: bool = true;
+#[cfg(not(feature = "generate"))]
 const GENERATE: bool = false;
 
 #[tokio::main]
