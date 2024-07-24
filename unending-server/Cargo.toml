@@ -20,4 +20,8 @@ uuid = { version = "1.9.1", features = ["v4", "fast-rng", "macro-diagnostics"] }
 
 [lib]
 name = "unending_server"
-path = "src/data.rs" 
+path = "src/data.rs"
+
+[features]
+default = ["generate"]
+generate = []
