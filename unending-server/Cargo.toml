@@ -16,6 +16,7 @@ serde_json = "1.0.119"
 strum = "0.26.3"
 strum_macros = "0.26.4"
 tokio = { version = "1.38.0", features = ["rt-multi-thread"] }
+toml = "0.9.2"
 uuid = { version = "1.9.1", features = ["v4", "fast-rng", "macro-diagnostics"] }
 
 [lib]

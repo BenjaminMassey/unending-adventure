@@ -1,0 +1,11 @@
+title = "Unending Adventure Server"
+
+[db]
+path = "data.db"
+
+[generation]
+enabled = true
+
+[api]
+address = "127.0.0.1"
+port = 3001

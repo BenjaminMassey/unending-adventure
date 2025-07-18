@@ -1,68 +1,61 @@
-const GPT4ALL_URL: &str = "127.0.0.1:4891";
-const GPT4ALL_MODEL: &str = "Llama 3 Instruct";
-const GPT4ALL_TIMEOUT: u64 = 90;
-const GPT4ALL_ATTEMPTS: usize = 3;
+// https://github.com/ollama/ollama/blob/main/docs/api.md
 
-use crate::log;
-
-// TODO: make tokens an Option and handle None
-fn openai_body(message: &str, tokens: usize) -> String {
-    let sanitized = message.replace('"', "'"); // TODO: more
-    format!(
-        r#"
-        {{
-            "model": "{GPT4ALL_MODEL}",
-            "max_tokens": {tokens},
-            "messages": [
-                {{
-                    "role": "system",
-                    "content": "You are a helpful assistant."
-                }},
-                {{
-                    "role": "user",
-                    "content": "{sanitized}"
-                }}
-            ]
-        }}
-        "#
-    )
+#[derive(serde::Serialize, serde::Deserialize)]
+struct Request {
+    model: String,
+    prompt: String,
+    stream: bool,
+    think: bool,
+    options: ModelOptions,
+}
+impl Request {
+    fn new(prompt: &str) -> Self {
+        Self {
+            model: "qwen3".to_owned(), // TODO: setting
+            prompt: prompt.to_owned(),
+            stream: false,
+            think: false, // TODO: maybe wanted, but then need parsing
+            options: ModelOptions { temperature: 1.4 } // TODO: setting
+        }
+    }
 }
 
-pub fn gpt4all_chat(message: &str, tokens: usize) -> Option<String> {
-    let url = "http://".to_owned() + &GPT4ALL_URL + "/v1/chat/completions";
-    let client = reqwest::blocking::Client::new();
-    let body = openai_body(message, tokens);
+#[derive(serde::Serialize, serde::Deserialize)]
+struct ModelOptions {
+    temperature: f32,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct Response {
+    response: Option<String>,
+}
+
+pub fn chat(client: &reqwest::blocking::Client, prompt: &str) -> String {
+    let body = serde_json::to_string(&Request::new(prompt)).expect("JSON to error");
+    let url = "http://localhost:11434/api/generate"; // TODO: setting
     let result = client
         .post(url)
         .body(body)
-        .timeout(std::time::Duration::from_secs(GPT4ALL_TIMEOUT))
-        .send();
-    if result.is_err() {
-        log::error(&format!("Failed LLM request: {:?}.", result));
-        return None;
-    }
-    let json = serde_json::from_str(&result.unwrap().text().unwrap());
-    if json.is_err() {
-        log::error(&format!("Failed to parse LLM response: {:?}.", json));
-        return None;
-    }
-    let value: serde_json::Value = json.unwrap();
-    let choices = value.get("choices")?;
-    let message = choices[0].get("message")?;
-    let content = message.get("content")?;
-    Some(content.to_string())
+        .send()
+        .expect("LLM endpoint error");
+    let text = result.text().expect("LLM text error");
+    let response: Response = serde_json::from_str(&text).expect("JSON from error");
+    let text = response.response.expect("Broken response");
+    sanitize(&text)
 }
 
-pub fn gpt4all_chat_force(message: &str, tokens: usize) -> String {
-    for _ in 0..GPT4ALL_ATTEMPTS {
-        if let Some(response) = gpt4all_chat(message, tokens) {
-            return response;
-        }
+fn sanitize(original: &str) -> String {
+    let replaces = vec![
+        ("’", "'"),
+        ("“", "\""),
+        ("”", "\""),
+        ("\n", " "),
+        ("\r", " "),
+        ("—", " - "),
+    ];
+    let mut new = original.to_owned();
+    for (o, n) in &replaces {
+        new = new.replace(o, n);
     }
-    panic!(
-            "{}\n{}\n{}",
-            "Failed to get response from gpt4all.",
-            format!("Message: {message}"),
-            format!("Tokens: {tokens}"),
-    ); // TODO: could figure out some sort of restart, or general better fail state
+    new
 }

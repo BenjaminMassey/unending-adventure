@@ -18,7 +18,7 @@ The Client is a video game that uses HTTP requests to get data from the Server, 
 
 Both the Client and the Server are Rust projects, so any information on [Rust](https://www.rust-lang.org/) and [cargo tools](https://doc.rust-lang.org/cargo/) is highly relevant.
 
-Throughout development, a tool called [Gpt4All](https://www.nomic.ai/gpt4all) was used in order to host a LLM chat. However, it should be noted that the Server uses fairly standard [OpenAI style API calls](https://platform.openai.com/docs/api-reference/completions/create), so a variety of tools should work properly.
+For the LLM text generation, you currently need to use ollama. First, install ollama from https://ollama.com/. Make sure to run it in the background, where it should be hosting an API server by default. Currently, UA assumes the usage of the qwen3 model: you may need to add this to ollama via the `ollama add qwen3` command, first.
 
 Four main crates used in the project are [bevy](https://bevyengine.org/) as the game engine for the Client, [axum](https://github.com/tokio-rs/axum) for API hosting on the Server, [rusqlite](https://github.com/rusqlite/rusqlite) for SQlite reading and writing, and [reqwest](https://crates.io/crates/reqwest/) for HTTP-related functionality.
 
@@ -28,7 +28,7 @@ Firstly, the Server starts with (and fills, as necessary) LLM prompts read from 
 
 ![prompt](./docs/prompt.png)
 
-Next, the Server feeds these configured prompts into a local LLM hoster like Gpt4All, and gets appropriate responses.
+Next, the Server feeds these configured prompts into a local LLM hoster and gets appropriate responses.
 
 ![gpt4all](./docs/gpt4all.png)
 

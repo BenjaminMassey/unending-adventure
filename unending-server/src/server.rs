@@ -1,32 +1,45 @@
-use crate::data;
-use crate::db;
 
 use std::str::FromStr;
 
-// TODO: more calls and better general usability
+pub struct AxumState {
+    pub settings: crate::settings::Settings,
+}
+impl AxumState {
+    pub fn new(settings: &crate::settings::Settings) -> Self {
+        Self {
+            settings: settings.clone()
+        }
+    }
+}
 
 pub async fn get_area_by_uuid(
-    axum::Json(payload): axum::Json<data::UuidRequest>,
+    axum::extract::State(state): axum::extract::State<std::sync::Arc<AxumState>>,
+    axum::Json(payload): axum::Json<crate::data::UuidRequest>,
 ) -> impl axum::response::IntoResponse {
-    let area = db::get_area_by_uuid(
+    let area = crate::db::get_area_by_uuid(
+        &state.settings,
         uuid::Uuid::from_str(&payload.uuid).unwrap()
     );
-    let string_area = data::StringArea::from_area(&area);
+    let string_area = crate::data::StringArea::from_area(&area);
     (axum::http::StatusCode::OK, axum::Json(string_area))
 }
 
-pub async fn get_random_area() -> impl axum::response::IntoResponse {
-    let area = db::get_random_area();
-    let string_area = data::StringArea::from_area(&area);
+pub async fn get_random_area(
+    axum::extract::State(state): axum::extract::State<std::sync::Arc<AxumState>>,
+) -> impl axum::response::IntoResponse {
+    let area = crate::db::get_random_area(&state.settings);
+    let string_area = crate::data::StringArea::from_area(&area);
     (axum::http::StatusCode::OK, axum::Json(string_area))
 }
 
 pub async fn get_quest_by_uuid(
-    axum::Json(payload): axum::Json<data::UuidRequest>,
+    axum::extract::State(state): axum::extract::State<std::sync::Arc<AxumState>>,
+    axum::Json(payload): axum::Json<crate::data::UuidRequest>,
 ) -> impl axum::response::IntoResponse {
-    let quest = db::get_quest_by_uuid(
+    let quest = crate::db::get_quest_by_uuid(
+        &state.settings,
         uuid::Uuid::from_str(&payload.uuid).unwrap()
     );
-    let string_quest = data::StringQuest::from_quest(&quest);
+    let string_quest = crate::data::StringQuest::from_quest(&quest);
     (axum::http::StatusCode::OK, axum::Json(string_quest))
 }

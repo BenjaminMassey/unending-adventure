@@ -1,4 +1,3 @@
-
 use std::str::FromStr;
 
 pub struct Area {
